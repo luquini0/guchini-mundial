@@ -144,6 +144,10 @@
   footer .footer-mascot{width:170px;max-width:60%;height:auto;margin:0 auto 12px;display:block;}
   footer .footer-logo{width:130px;max-width:50%;height:auto;margin:0 auto 8px;display:block;}
   footer p{margin:0;}
+  footer .footer-social{display:flex;justify-content:center;gap:18px;margin-top:14px;}
+  footer .footer-social a{color:var(--muted);display:inline-flex;transition:color .15s ease, transform .15s ease;}
+  footer .footer-social a:hover{color:var(--accent);transform:translateY(-1px);}
+  footer .footer-social svg{width:22px;height:22px;}
   .locales{display:grid;gap:10px;margin-top:10px;}
   .local-item{background:var(--bg-alt);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:13px;}
   .local-item b{display:block;font-size:14px;margin-bottom:2px;}
@@ -192,6 +196,14 @@
   <img class="footer-mascot" src="footer_mascot.png" alt="" />
   <img class="footer-logo" src="logo1.png" alt="Guchini" />
   <p>🇦🇷 &nbsp;·&nbsp; Mendoza</p>
+  <div class="footer-social">
+    <a href="https://www.instagram.com/guchini.ar/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de Guchini">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="https://www.tiktok.com/@guchini.ar" target="_blank" rel="noopener noreferrer" aria-label="TikTok de Guchini">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2.5c.4 2.4 2.1 4.2 4.5 4.5v3.1c-1.7 0-3.3-.5-4.5-1.5v6.8a5.9 5.9 0 1 1-5.9-5.9c.3 0 .6 0 .9.1v3.1a2.8 2.8 0 1 0 2 2.7V2.5h3z"/></svg>
+    </a>
+  </div>
 </footer>
 
 <button class="tyc-float" id="btnTyc">📄 Términos y condiciones</button>
@@ -234,14 +246,27 @@ function toggleTheme(){
 initTheme();
 
 // ---------- NAV ----------
-async function renderNav(){
-  const session = await safeGetSession();
+// Se pinta en dos pasos: primero el esqueleto (sin esperar red, aparece al toque),
+// y recién después se corrige el botón de sesión si hace falta. Así los botones
+// de arriba nunca quedan en blanco esperando a Supabase.
+function renderNavSkeleton(){
   const isSel = document.body.classList.contains('modo-seleccion');
   navbtns.innerHTML = `
     <button class="icon-btn" id="themeBtn">${isSel ? '⚫ Modo clásico' : '🇦🇷 Modo Selección'}</button>
-    ${session ? `<a class="icon-btn primary" href="?view=dashboard">Mi cuenta</a>` : `<a class="icon-btn primary" href="?view=login">Ingresar</a>`}
+    <a class="icon-btn primary" href="?view=login" id="navAuthBtn">Ingresar</a>
   `;
   document.getElementById('themeBtn').onclick = toggleTheme;
+}
+renderNavSkeleton();
+
+async function renderNav(){
+  renderNavSkeleton();
+  const session = await safeGetSession();
+  const authBtn = document.getElementById('navAuthBtn');
+  if (authBtn && session) {
+    authBtn.textContent = 'Mi cuenta';
+    authBtn.setAttribute('href', '?view=dashboard');
+  }
 }
 
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1068,7 +1093,10 @@ async function renderAdmin(adminInfoPrefetched){
     <div class="card">
       <h2><span class="live-dot"></span>Lista en vivo</h2>
       <p class="sub">Se actualiza sola cada pocos segundos mientras esta pantalla esté abierta.</p>
-      <select id="liveSucursal">${sucursalesOrden.map(s => `<option value="${s.slug}">${esc(s.nombre)}${s.slug === miSucursal ? ' (tu sucursal)' : ''}</option>`).join('')}</select>
+      ${isSuper
+        ? `<select id="liveSucursal">${sucursalesOrden.map(s => `<option value="${s.slug}">${esc(s.nombre)}${s.slug === miSucursal ? ' (tu sucursal)' : ''}</option>`).join('')}</select>`
+        : `<p class="sub" style="margin:4px 0 0;"><span class="tag">${esc(adminInfo.sucursal_nombre || 'tu sucursal')}</span></p>`
+      }
       <div id="liveBox" style="margin-top:14px;"></div>
     </div>
 
@@ -1257,8 +1285,10 @@ async function renderAdmin(adminInfoPrefetched){
   }
 
   // ---- Lista en vivo (polling) ----
+  // Un admin normal SIEMPRE ve y opera solo su propia sucursal — ni siquiera
+  // hay selector para elegir otra. Solo el superadmin puede cambiar de sucursal.
   async function loadLive(){
-    const slug = document.getElementById('liveSucursal').value;
+    const slug = isSuper ? document.getElementById('liveSucursal').value : miSucursal;
     const box = document.getElementById('liveBox');
     const { data, error } = await sb.rpc('admin_lista_vivo', { p_sucursal_slug: slug });
     if (error) { box.innerHTML = `<p class="sub">No se pudo cargar la lista en vivo.</p>`; return; }
@@ -1267,26 +1297,42 @@ async function renderAdmin(adminInfoPrefetched){
     box.innerHTML = `
       <p class="sub" style="margin:0 0 8px;">${activo ? '<span class="tag">Concurso activo</span>' : '<span class="tag muted">Último concurso (cerrado)</span>'} · ${data.length}/50</p>
       <table>
-        <thead><tr><th>#</th><th>Cliente</th><th>Nombre</th><th>Hora</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Cliente</th><th>Nombre</th><th>Hora</th><th>Premio</th></tr></thead>
         <tbody>
           ${data.map(r => {
             const medalla = r.posicion === 1 ? '🥇 ' : r.posicion === 2 ? '🥈 ' : r.posicion === 3 ? '🥉 ' : '';
             const podio = r.posicion && r.posicion <= 3 ? 'style="background:var(--accent-soft);font-weight:700;"' : '';
+            let premio = '';
+            if (r.ganador) {
+              premio = r.entregado
+                ? '<span class="tag muted">✅ Entregado</span>'
+                : `<button class="link-btn" data-entregar="${r.reg_id}">🥪 Marcar entregado</button>`;
+            }
             return `
             <tr ${podio}>
               <td>${medalla}${r.posicion ?? '—'}</td>
               <td>#${r.numero_cliente ?? '—'}</td>
               <td>${esc(r.nombre)}</td>
               <td>${new Date(r.creado_en).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}</td>
-              <td>${r.ganador ? '🏆' : ''}</td>
+              <td>${premio}</td>
             </tr>
           `;}).join('')}
         </tbody>
       </table>
     `;
+    box.querySelectorAll('[data-entregar]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true; btn.textContent = 'Marcando...';
+        const { error } = await sb.rpc('marcar_entregado', { p_registro_id: btn.getAttribute('data-entregar') });
+        if (error) { alert('No se pudo marcar: ' + error.message); btn.disabled = false; btn.textContent = '🥪 Marcar entregado'; return; }
+        loadLive();
+      });
+    });
   }
-  document.getElementById('liveSucursal').value = miSucursal && sucursalesOrden.some(s => s.slug === miSucursal) ? miSucursal : sucursalesOrden[0].slug;
-  document.getElementById('liveSucursal').addEventListener('change', loadLive);
+  if (isSuper) {
+    document.getElementById('liveSucursal').value = miSucursal && sucursalesOrden.some(s => s.slug === miSucursal) ? miSucursal : sucursalesOrden[0].slug;
+    document.getElementById('liveSucursal').addEventListener('change', loadLive);
+  }
   stopLive();
   loadLive();
   liveTimer = setInterval(loadLive, 4000);
