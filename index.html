@@ -557,11 +557,12 @@ async function renderRegistro(token){
   if (token) {
     const { data, error } = await infoPromise;
     info = (data && data[0]) || null;
-    if (error || !info) {
-      app.innerHTML = `<div class="card"><h2>QR no válido</h2><p class="sub">Este código no existe o la sucursal no está activa. Pedí ayuda en el mostrador.</p><button class="cta ghost" id="btnVolverInicioQr">Volver al inicio</button></div>`;
-      document.getElementById('btnVolverInicioQr').onclick = () => { history.pushState(null, '', '?'); renderNav(); renderHome(); };
-      return;
-    }
+    // Si no pudimos traer los datos de la sucursal (token realmente inválido,
+    // o solo un tropiezo de red) NO cortamos acá con una pantalla muerta: dejamos
+    // pasar al registro igual, como antes. Si el token es realmente inválido,
+    // el propio envío del formulario lo va a rechazar con un mensaje claro
+    // (la validación real la hace el servidor, no esta pantalla).
+    if (error) console.error('No se pudo cargar la info de la sucursal (se sigue igual):', error);
   }
 
   const session = await sessionPromise;
