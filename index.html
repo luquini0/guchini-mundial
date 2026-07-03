@@ -7,7 +7,11 @@
 <meta name="description" content="Si Argentina gana, los primeros 50 se llevan medio Guchini gratis. Registrate acá." />
 <link rel="icon" type="image/png" href="badge_clasico.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://oabyubpjyjajvvfrhlot.supabase.co">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
     --bg:#FCC443;
@@ -193,7 +197,9 @@
 <button class="tyc-float" id="btnTyc">📄 Términos y condiciones</button>
 
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// supabase-js se carga como <script defer> desde jsdelivr (un solo archivo, cacheado),
+// en paralelo con este módulo, en vez de por import ESM (evita varias requests encadenadas).
+const { createClient } = window.supabase;
 
 const SUPABASE_URL = "https://oabyubpjyjajvvfrhlot.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hYnl1YnBqeWphanZ2ZnJobG90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwNDczMjksImV4cCI6MjA5ODYyMzMyOX0.53S_KGBOh261O0tF4qpq9Z9fGZpL26h7D4PFbQ-0LYU";
@@ -417,17 +423,27 @@ function withTimeout(promise, ms = 6000, label = 'operación'){
 // está corrupto (puede pasar tras un registro con auto-login), en vez de
 // romper toda la app, se limpia y se sigue como visitante. También protege
 // contra el caso en que getSession() se quede colgado sin responder nunca.
+// Si varias partes de la app piden la sesión casi al mismo tiempo (nav +
+// vista actual), comparten un solo pedido en vez de duplicarlo — así el
+// router no espera dos veces por lo mismo.
+let _sessionInFlight = null;
 async function safeGetSession(){
-  try {
-    const { data, error } = await withTimeout(sb.auth.getSession(), 10000, 'verificar sesión');
-    if (error) throw error;
-    return (data && data.session) || null;
-  } catch (err) {
-    // No forzamos signOut acá: si la red estuvo lenta un instante, cerrar la
-    // sesión de golpe es peor que solo reintentar en el próximo render.
-    console.error('No se pudo verificar la sesión (se reintentará):', err);
-    return null;
-  }
+  if (_sessionInFlight) return _sessionInFlight;
+  _sessionInFlight = (async () => {
+    try {
+      const { data, error } = await withTimeout(sb.auth.getSession(), 10000, 'verificar sesión');
+      if (error) throw error;
+      return (data && data.session) || null;
+    } catch (err) {
+      // No forzamos signOut acá: si la red estuvo lenta un instante, cerrar la
+      // sesión de golpe es peor que solo reintentar en el próximo render.
+      console.error('No se pudo verificar la sesión (se reintentará):', err);
+      return null;
+    } finally {
+      _sessionInFlight = null;
+    }
+  })();
+  return _sessionInFlight;
 }
 
 // Pantalla de emergencia: se muestra si algo revienta y no queremos
@@ -459,7 +475,7 @@ async function router(){
     const params = new URLSearchParams(location.search);
     const view = params.get('view');
     const token = params.get('token');
-    await renderNav();
+    renderNav(); // corre en paralelo, no bloquea el contenido principal
 
     if (token) return await renderRegistro(token);
     if (view === 'login') return await renderLogin();
@@ -506,13 +522,15 @@ function renderHome(){
 async function renderRegistro(token){
   app.innerHTML = `<div class="loader">Cargando...</div>`;
   let info = null;
+  // sucursal_info (si hay token) y la sesión se piden en paralelo, no en cadena —
+  // en el escaneo de QR esto ahorra una vuelta completa de red.
+  const infoPromise = token
+    ? withTimeout(sb.rpc('sucursal_info', { p_token: token }), 8000, 'cargar sucursal').catch(err => ({ data: null, error: err }))
+    : Promise.resolve({ data: null, error: null });
+  const sessionPromise = safeGetSession();
+
   if (token) {
-    let data, error;
-    try {
-      ({ data, error } = await withTimeout(sb.rpc('sucursal_info', { p_token: token }), 8000, 'cargar sucursal'));
-    } catch (timeoutErr) {
-      error = timeoutErr;
-    }
+    const { data, error } = await infoPromise;
     info = (data && data[0]) || null;
     if (error || !info) {
       app.innerHTML = `<div class="card"><h2>QR no válido</h2><p class="sub">Este código no existe o la sucursal no está activa. Pedí ayuda en el mostrador.</p><button class="cta ghost" id="btnVolverInicioQr">Volver al inicio</button></div>`;
@@ -521,7 +539,7 @@ async function renderRegistro(token){
     }
   }
 
-  const session = await safeGetSession();
+  const session = await sessionPromise;
 
   // Usuario ya logueado + concurso activo en esta sucursal → "un toque" en vez del formulario completo
   if (token && info && info.concurso_activo && session) {
