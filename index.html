@@ -601,6 +601,7 @@ async function renderUnirseConcurso(token, info, session){
     let texto = 'No pudimos confirmar tu lugar. Probá de nuevo.';
     if (msg.includes('YA_REGISTRADO_PROMO')) texto = 'Ya estás anotado en este concurso. Mostrá tu cuenta en el mostrador.';
     else if (msg.includes('YA_REGISTRADO_OTRO_LOCAL')) texto = 'Ya te anotaste en este mismo partido en otra sucursal. Solo se puede en un local por partido.';
+    else if (msg.includes('CONCURSO_PAUSADO')) texto = 'El concurso de esta sucursal está pausado en este momento. Probá en unos minutos.';
     else if (msg.includes('SIN_CONCURSO_ACTIVO')) texto = 'El concurso ya cerró.';
     else if (msg.includes('SIN_PERFIL')) { renderRegistro(token); return; }
     app.innerHTML = `<div class="card"><div class="msg err">${esc(texto)}</div><button class="cta ghost" id="btnVolverInicioUnirse" style="margin-top:14px;">Volver al inicio</button></div>`;
@@ -1026,10 +1027,18 @@ async function renderAdmin(adminInfoPrefetched){
         <h2>${esc(s.sucursal_nombre)} ${s.sucursal_slug === miSucursal ? '<span class="tag muted">tu sucursal</span>' : ''}</h2>
         ${s.concurso_activo ? `
           <p class="sub" style="margin:0 0 12px;">
-            <span class="tag">Concurso activo</span>
+            <span class="tag${s.concurso_pausado ? ' muted' : ''}">${s.concurso_pausado ? 'Concurso pausado' : 'Concurso activo'}</span>
             &nbsp;${esc(s.partido_rival || ('Partido ' + s.partido_numero))} · ${s.cupos_usados}/50 registrados
           </p>
-          ${isSuper ? `<button class="cta ghost" data-cerrar="${s.sucursal_slug}">Cerrar concurso</button>` : ''}
+          ${isSuper ? `
+          <div class="grid2">
+            ${s.concurso_pausado
+              ? `<button class="cta" data-reanudar="${s.sucursal_slug}">Reanudar</button>`
+              : `<button class="cta ghost" data-pausar="${s.sucursal_slug}">Pausar</button>`}
+            <button class="cta ghost" data-cerrar="${s.sucursal_slug}">Cerrar concurso</button>
+          </div>
+          <button class="cta ghost slim" data-cancelar="${s.sucursal_slug}" style="margin-top:8px;color:var(--danger);border-color:var(--danger);">Cancelar y reiniciar</button>
+          ` : ''}
         ` : `
           <p class="sub" style="margin:0 0 12px;">Sin concurso activo. El QR de esta sucursal registra en modo general.</p>
           ${isSuper ? `
@@ -1039,7 +1048,7 @@ async function renderAdmin(adminInfoPrefetched){
           </div>
           ` : ''}
         `}
-        <button class="cta ghost slim" data-verqr="${s.sucursal_slug}" data-nombre="${esc(s.sucursal_nombre)}">📱 Ver / descargar QR</button>
+        <button class="cta ghost slim" data-verqr="${s.sucursal_slug}" data-nombre="${esc(s.sucursal_nombre)}" style="margin-top:8px;">📱 Ver / descargar QR</button>
       </div>
     `).join('');
 
@@ -1068,6 +1077,40 @@ async function renderAdmin(adminInfoPrefetched){
         btn.disabled = true; btn.textContent = 'Cerrando...';
         const { error } = await sb.rpc('cerrar_concurso', { p_sucursal_slug: slug });
         if (error) { alert('No se pudo cerrar: ' + error.message); }
+        await loadSucursales();
+        await loadStats();
+      });
+    });
+
+    box.querySelectorAll('[data-pausar]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const slug = btn.getAttribute('data-pausar');
+        btn.disabled = true; btn.textContent = 'Pausando...';
+        const { error } = await sb.rpc('pausar_concurso', { p_sucursal_slug: slug });
+        if (error) { alert('No se pudo pausar: ' + error.message); }
+        await loadSucursales();
+        await loadStats();
+      });
+    });
+
+    box.querySelectorAll('[data-reanudar]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const slug = btn.getAttribute('data-reanudar');
+        btn.disabled = true; btn.textContent = 'Reanudando...';
+        const { error } = await sb.rpc('reanudar_concurso', { p_sucursal_slug: slug });
+        if (error) { alert('No se pudo reanudar: ' + error.message); }
+        await loadSucursales();
+        await loadStats();
+      });
+    });
+
+    box.querySelectorAll('[data-cancelar]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const slug = btn.getAttribute('data-cancelar');
+        if (!confirm('¿Cancelar este concurso? Los registros ya hechos quedan guardados para siempre (no se borran), pero el concurso se cierra y podrás activar uno nuevo desde cero.')) return;
+        btn.disabled = true; btn.textContent = 'Cancelando...';
+        const { error } = await sb.rpc('cancelar_concurso', { p_sucursal_slug: slug });
+        if (error) { alert('No se pudo cancelar: ' + error.message); }
         await loadSucursales();
         await loadStats();
       });
@@ -1216,6 +1259,7 @@ window.addEventListener('unhandledrejection', (ev) => {
 });
 
 sb.auth.onAuthStateChange(() => renderNav());
+window.addEventListener('popstate', () => router());
 router();
 </script>
 </body>
