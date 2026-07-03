@@ -208,7 +208,8 @@ const SUCURSALES = [
   { slug: 'chacras', nombre: 'Guchini Chacras' },
   { slug: 'nueva-cordoba', nombre: 'Guchini Nueva Córdoba' },
 ];
-const PARTIDOS = [1,2,3,4,5];
+const PARTIDOS = [0,1,2,3,4,5];
+const partidoLabel = (n) => n === 0 ? '🧪 Partido de prueba' : ('Partido ' + n);
 
 // Timer de polling en vivo (panel admin) — se limpia al cambiar de vista
 let liveTimer = null;
@@ -269,6 +270,70 @@ function mostrarTerminos(){
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 }
 document.getElementById('btnTyc').onclick = mostrarTerminos;
+
+// ---------- Manual de uso, según rol ----------
+const MANUALES = {
+  super: {
+    titulo: 'Manual del Superadmin',
+    html: `
+      <h3>Tu panel</h3>
+      <p>Tenés acceso a las 3 sucursales: activás, pausás, reanudás, cerrás y cancelás concursos, y ves la base completa.</p>
+      <h3>Activar un concurso</h3>
+      <p>Cuando gana Argentina, elegí el partido y activá por sucursal, o usá "Activar en todas" para las 3 juntas.</p>
+      <h3>Pausar / Reanudar</h3>
+      <p>"Pausar" congela las inscripciones sin perder lo ya registrado. "Reanudar" lo vuelve a abrir.</p>
+      <h3>Cancelar y reiniciar</h3>
+      <p>Cancela el concurso para activar uno nuevo desde cero. No borra registros: quedan guardados para siempre.</p>
+      <h3>Lista en vivo, QR y números de cliente</h3>
+      <p>Seguí quién se anota en tiempo real (con podio 🥇🥈🥉), descargá el QR de cada local, y recordá que el número de cliente es único e irrepetible para cada persona.</p>
+      <h3>Seguridad</h3>
+      <p>No compartas tu contraseña. Los datos de contacto de los clientes sólo los ves vos.</p>
+    `
+  },
+  admin: {
+    titulo: 'Manual del Admin de Sucursal',
+    html: `
+      <h3>Tu panel</h3>
+      <p>Ves solo tu sucursal: estado del concurso, lista en vivo con podio (🥇🥈🥉) y el QR de tu local.</p>
+      <h3>Lo que no podés hacer</h3>
+      <p>Activar, pausar, reanudar ni cancelar el concurso, ni editar/borrar registros: eso lo maneja el superadmin. Avisale si necesitás algún cambio.</p>
+      <h3>El día de un partido</h3>
+      <p>Mostrá el QR fijo de tu local (ya impreso), seguí la lista en vivo, y al llegar a 50 el concurso se cierra solo.</p>
+      <h3>Seguridad</h3>
+      <p>No compartas tu usuario ni contraseña. Usá siempre el QR oficial impreso.</p>
+    `
+  },
+  cliente: {
+    titulo: 'Guía del Cliente',
+    html: `
+      <h3>Cómo participar</h3>
+      <p>Cuando gana Argentina, andá a cualquier sucursal Guchini y escaneá el QR fijo del local (o usá "Escanear QR" desde tu cuenta). Los primeros 50 ganan medio Guchini.</p>
+      <h3>Reglas</h3>
+      <p>Una participación por partido, en un único local. Solo entran los primeros 50 de cada sucursal.</p>
+      <h3>Tu cuenta</h3>
+      <p>Tenés un número de cliente único para siempre, podés ver el top 50 en vivo de tu sucursal y cambiar tu contraseña cuando quieras.</p>
+      <h3>Retirar el premio</h3>
+      <p>Si ganaste, mostrá tu cuenta (nombre y número de cliente) en el mostrador del local donde te registraste.</p>
+    `
+  }
+};
+function mostrarManual(rol){
+  const m = MANUALES[rol];
+  if (!m) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:480px;">
+      <button class="modal-close" aria-label="Cerrar">×</button>
+      <h2 style="margin-top:0;">${esc(m.titulo)}</h2>
+      <div class="tyc-text">${m.html}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.querySelector('.modal-close').onclick = close;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+}
 
 // ---------- ESCANEAR QR (cámara, para usuarios ya logueados) ----------
 let jsQRLoaded = null;
@@ -798,7 +863,10 @@ async function renderDashboard(){
   const misPartidos = [...new Set(misConcursos.map(r => r.partido_numero).filter(Boolean))];
   if (!misPartidos.length) misPartidos.push(...PARTIDOS);
   app.innerHTML = `
-    <div class="hero"><h1>Hola 👋</h1><p>${esc(session.user.email)}</p>${miNumero ? `<p><span class="tag muted">Cliente N° ${miNumero}</span></p>` : ''}</div>
+    <div class="hero">
+      <h1>Hola 👋</h1><p>${esc(session.user.email)}</p>${miNumero ? `<p><span class="tag muted">Cliente N° ${miNumero}</span></p>` : ''}
+      <p style="text-align:center;"><button class="link-btn" id="btnVerManualCliente">📘 Cómo funciona Guchinis Gratis</button></p>
+    </div>
 
     <div class="card">
       <h2>Escanear QR</h2>
@@ -852,6 +920,7 @@ async function renderDashboard(){
     </div>
   `;
 
+  document.getElementById('btnVerManualCliente').onclick = () => mostrarManual('cliente');
   document.getElementById('btnEscanear').onclick = async () => {
     const btn = document.getElementById('btnEscanear');
     btn.disabled = true; btn.textContent = 'Abriendo cámara...';
@@ -956,7 +1025,11 @@ async function renderAdmin(adminInfoPrefetched){
       <h1>Panel Guchini Mundial</h1>
       <p><span class="tag role">${isSuper ? 'Superadmin' : 'Admin de sucursal'}</span></p>
       <p class="sub">${isSuper ? 'Activá el concurso cuando gane Argentina' : `Viendo por defecto: ${esc(adminInfo.sucursal_nombre || 'sin sucursal asignada')}`}</p>
-      <p style="text-align:center;"><button class="link-btn" id="btnLogoutAdmin">Cerrar sesión</button></p>
+      <p style="text-align:center;">
+        <button class="link-btn" id="btnVerManual">📘 Manual del panel</button>
+        &nbsp;·&nbsp;
+        <button class="link-btn" id="btnLogoutAdmin">Cerrar sesión</button>
+      </p>
     </div>
     ${isSuper ? `<div id="statsBox"></div>` : ''}
 
@@ -965,7 +1038,7 @@ async function renderAdmin(adminInfoPrefetched){
       <h2>🇦🇷 Argentina ganó</h2>
       <p class="sub">Activa el concurso en las 3 sucursales al mismo tiempo, para el mismo partido.</p>
       <div class="grid2">
-        <select id="globalPartido">${PARTIDOS.map(n => `<option value="${n}">Partido ${n}</option>`).join('')}</select>
+        <select id="globalPartido">${PARTIDOS.map(n => `<option value="${n}">${partidoLabel(n)}</option>`).join('')}</select>
         <button class="cta" id="btnActivarTodas">Activar en todas</button>
       </div>
       <div id="globalActivarMsg"></div>
@@ -1043,7 +1116,7 @@ async function renderAdmin(adminInfoPrefetched){
           <p class="sub" style="margin:0 0 12px;">Sin concurso activo. El QR de esta sucursal registra en modo general.</p>
           ${isSuper ? `
           <div class="grid2">
-            <select data-partido-select="${s.sucursal_slug}">${PARTIDOS.map(n => `<option value="${n}">Partido ${n}</option>`).join('')}</select>
+            <select data-partido-select="${s.sucursal_slug}">${PARTIDOS.map(n => `<option value="${n}">${partidoLabel(n)}</option>`).join('')}</select>
             <button class="cta" data-activar="${s.sucursal_slug}">Marcar partido ganado</button>
           </div>
           ` : ''}
@@ -1248,6 +1321,7 @@ async function renderAdmin(adminInfoPrefetched){
   loadStats();
   loadSucursales();
   document.getElementById('btnLogoutAdmin').onclick = async () => { await sb.auth.signOut(); location.href = '?'; };
+  document.getElementById('btnVerManual').onclick = () => mostrarManual(isSuper ? 'super' : 'admin');
 }
 
 window.addEventListener('unhandledrejection', (ev) => {
