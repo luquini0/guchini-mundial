@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Guchini Mundial — Guchinis Gratis</title>
+<meta name="description" content="Si Argentina gana, los primeros 50 se llevan medio Guchini gratis. Registrate acá." />
+<link rel="icon" type="image/png" href="badge_clasico.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FCC443;
+    --bg-alt:#F2F8F2;
+    --card:#ffffff;
+    --accent:#006A3B;
+    --accent-strong:#024F2B;
+    --accent-ink:#ffffff;
+    --accent-soft:rgba(0,106,59,.10);
+    --brand-green:#006A3B;
+    --text:#06331D;
+    --muted:#4c6a5a;
+    --border:#d9ecd9;
+    --success:#006A3B;
+    --danger:#c23b3b;
+    --radius:20px;
+    --shadow:0 10px 26px rgba(6,51,29,.16);
+    --stripe-a:#FCC443;
+    --stripe-b:#006A3B;
+  }
+  body.modo-seleccion{
+    --bg:#eef7fc; --bg-alt:#ffffff; --card:#ffffff;
+    --accent:#6CACE4; --accent-strong:#4E93CE; --accent-ink:#0c1b2a;
+    --accent-soft:rgba(108,172,228,.16); --brand-green:#4E93CE;
+    --text:#0c1b2a; --muted:#5b7085; --border:#d7e9f5;
+    --shadow:0 10px 30px rgba(76,147,206,.18);
+    --stripe-a:#6CACE4; --stripe-b:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Poppins',system-ui,sans-serif;
+    min-height:100vh;
+    transition:background .35s ease,color .35s ease;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0 0 auto 0; height:6px;
+    background:repeating-linear-gradient(90deg,var(--stripe-a) 0 40px,var(--stripe-b) 40px 80px);
+    z-index:50;
+  }
+  a{color:inherit;}
+  .wrap{max-width:520px;margin:0 auto;padding:0 18px 60px;}
+  header.topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;max-width:520px;margin:0 auto;
+  }
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand-logo{height:52px;width:auto;display:block;}
+  .brand-logo.logo-seleccion{display:none;}
+  body.modo-seleccion .brand-logo.logo-clasico{display:none;}
+  body.modo-seleccion .brand-logo.logo-seleccion{display:block;}
+  .navbtns{display:flex;align-items:center;gap:8px;}
+  .icon-btn{
+    background:var(--card);border:1px solid var(--border);color:var(--text);
+    border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:600;
+    cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .icon-btn:hover{transform:translateY(-1px);}
+  .icon-btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;}
+
+  .hero{
+    text-align:center;padding:20px 0 8px;
+  }
+  .hero h1{font-size:26px;line-height:1.25;margin:10px 0 6px;}
+  .hero p{color:var(--muted);font-size:14.5px;margin:0 auto;max-width:420px;}
+  .pill{
+    display:inline-block;background:var(--accent);color:var(--accent-ink);
+    padding:5px 14px;border-radius:999px;font-weight:700;font-size:12px;
+    letter-spacing:.5px;text-transform:uppercase;
+  }
+
+  .card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:var(--radius);padding:22px;margin-top:20px;
+    box-shadow:var(--shadow);
+  }
+  .card h2{margin:0 0 4px;font-size:19px;}
+  .card .sub{color:var(--muted);font-size:13px;margin:0 0 16px;}
+
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:14px 0 6px;}
+  input[type=text],input[type=email],input[type=tel],input[type=date],input[type=password]{
+    width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);
+    background:var(--bg-alt);color:var(--text);font-size:14.5px;font-family:inherit;
+    outline:none;transition:border .15s ease;
+  }
+  input:focus{border-color:var(--accent);}
+  .check-row{display:flex;gap:8px;align-items:flex-start;margin-top:16px;}
+  .check-row input{margin-top:3px;}
+  .check-row span{font-size:12px;color:var(--muted);line-height:1.5;}
+
+  button.cta{
+    width:100%;margin-top:20px;padding:14px;border:none;border-radius:14px;
+    background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:15px;
+    cursor:pointer;transition:filter .15s ease, transform .1s ease;
+  }
+  button.cta:hover{filter:brightness(1.06);}
+  button.cta:active{transform:scale(.99);}
+  button.cta:disabled{opacity:.55;cursor:not-allowed;}
+  button.cta.ghost{background:transparent;border:1.5px solid var(--border);color:var(--text);}
+  button.cta.slim{margin-top:10px;padding:11px;font-size:13.5px;}
+
+  .msg{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:13.5px;line-height:1.5;}
+  .msg.ok{background:var(--accent-soft);border:1px solid var(--accent);}
+  .msg.err{background:rgba(194,59,59,.10);border:1px solid var(--danger);color:var(--danger);}
+
+  .result-big{
+    text-align:center;padding:26px 10px;
+  }
+  .result-big .num{font-size:56px;font-weight:800;color:var(--accent);line-height:1;}
+  .result-big .cap{font-size:13px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:1px;}
+  .trophy{font-size:40px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--border);}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;}
+  tr.me{background:var(--accent-soft);}
+  select{
+    width:100%;padding:11px 12px;border-radius:12px;border:1.5px solid var(--border);
+    background:var(--bg-alt);color:var(--text);font-family:inherit;font-size:13.5px;margin-top:6px;
+  }
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent);color:var(--accent-ink);}
+  .tag.muted{background:var(--border);color:var(--muted);}
+  .tag.role{background:var(--accent-soft);color:var(--accent-strong);border:1px solid var(--accent);}
+  footer{text-align:center;color:var(--muted);font-size:11.5px;padding:30px 20px;}
+  footer .footer-mascot{width:170px;max-width:60%;height:auto;margin:0 auto 12px;display:block;}
+  footer .footer-logo{width:130px;max-width:50%;height:auto;margin:0 auto 8px;display:block;}
+  footer p{margin:0;}
+  .locales{display:grid;gap:10px;margin-top:10px;}
+  .local-item{background:var(--bg-alt);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:13px;}
+  .local-item b{display:block;font-size:14px;margin-bottom:2px;}
+  .loader{display:flex;justify-content:center;padding:30px 0;color:var(--muted);font-size:13px;}
+  .link-btn{background:none;border:none;color:var(--accent);font-size:12.5px;font-weight:600;cursor:pointer;padding:0;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;}
+  .stat{background:var(--bg-alt);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;}
+  .stat b{display:block;font-size:20px;}
+  .stat span{font-size:10px;color:var(--muted);text-transform:uppercase;}
+  .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%{opacity:1;}50%{opacity:.35;}100%{opacity:1;}}
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(6,20,14,.55);z-index:100;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-box{
+    background:var(--card);border-radius:var(--radius);padding:22px;
+    max-width:360px;width:100%;text-align:center;box-shadow:var(--shadow);
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal-box img{width:100%;border-radius:14px;border:1px solid var(--border);display:block;}
+  .modal-close{background:none;border:none;font-size:22px;line-height:1;color:var(--muted);cursor:pointer;float:right;}
+  .tyc-float{
+    position:fixed;left:14px;bottom:14px;z-index:90;
+    background:var(--card);border:1px solid var(--border);color:var(--muted);
+    border-radius:999px;padding:8px 14px;font-size:11.5px;font-weight:600;
+    cursor:pointer;box-shadow:var(--shadow);
+  }
+  .tyc-text{text-align:left;font-size:13px;line-height:1.6;color:var(--text);max-height:55vh;overflow-y:auto;}
+  .tyc-text h3{font-size:14px;margin:14px 0 4px;}
+  .tyc-text h3:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a href="?" class="brand">
+    <img class="brand-logo logo-clasico" src="word_clasico.png" alt="Guchini" />
+    <img class="brand-logo logo-seleccion" src="word_seleccion.png" alt="Guchini" />
+  </a>
+  <div class="navbtns" id="navbtns"></div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<footer>
+  <img class="footer-mascot" src="footer_mascot.png" alt="" />
+  <img class="footer-logo" src="logo1.png" alt="Guchini" />
+  <p>🇦🇷 &nbsp;·&nbsp; Mendoza</p>
+</footer>
+
+<button class="tyc-float" id="btnTyc">📄 Términos y condiciones</button>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = "https://oabyubpjyjajvvfrhlot.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hYnl1YnBqeWphanZ2ZnJobG90Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwNDczMjksImV4cCI6MjA5ODYyMzMyOX0.53S_KGBOh261O0tF4qpq9Z9fGZpL26h7D4PFbQ-0LYU";
+const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1/api`;
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const app = document.getElementById('app');
+const navbtns = document.getElementById('navbtns');
+
+const SUCURSALES = [
+  { slug: 'mendoza-la-casa', nombre: 'Guchini "La Casa" - Mendoza' },
+  { slug: 'chacras', nombre: 'Guchini Chacras' },
+  { slug: 'nueva-cordoba', nombre: 'Guchini Nueva Córdoba' },
+];
+const PARTIDOS = [1,2,3,4,5];
+
+// Timer de polling en vivo (panel admin) — se limpia al cambiar de vista
+let liveTimer = null;
+function stopLive(){ if (liveTimer) { clearInterval(liveTimer); liveTimer = null; } }
+
+// ---------- THEME ----------
+function initTheme(){
+  const saved = localStorage.getItem('guchini_theme');
+  if (saved === 'seleccion') document.body.classList.add('modo-seleccion');
+}
+function toggleTheme(){
+  document.body.classList.toggle('modo-seleccion');
+  localStorage.setItem('guchini_theme', document.body.classList.contains('modo-seleccion') ? 'seleccion' : 'clasico');
+  renderNav();
+}
+initTheme();
+
+// ---------- NAV ----------
+async function renderNav(){
+  const session = await safeGetSession();
+  const isSel = document.body.classList.contains('modo-seleccion');
+  navbtns.innerHTML = `
+    <button class="icon-btn" id="themeBtn">${isSel ? '⚫ Modo clásico' : '🇦🇷 Modo Selección'}</button>
+    ${session ? `<a class="icon-btn primary" href="?view=dashboard">Mi cuenta</a>` : `<a class="icon-btn primary" href="?view=login">Ingresar</a>`}
+  `;
+  document.getElementById('themeBtn').onclick = toggleTheme;
+}
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ---------- TÉRMINOS Y CONDICIONES ----------
+function mostrarTerminos(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box" style="max-width:480px;">
+      <button class="modal-close" aria-label="Cerrar">×</button>
+      <h2 style="margin-top:0;">Términos y condiciones</h2>
+      <div class="tyc-text">
+        <h3>1. La promoción</h3>
+        <p>"Guchinis Gratis" es una promoción de Guchini vigente durante el Mundial 2026. Cada vez que la Selección Argentina gane un partido, cada sucursal participante puede activar un concurso: los primeros 50 clientes que se registren o escaneen el QR de esa sucursal después de activado el concurso ganan medio Guchini gratis (a elección, sujeto a stock disponible en el local).</p>
+        <h3>2. Cómo se participa</h3>
+        <p>Se participa registrándose con datos reales (nombre, email, celular, fecha de nacimiento) y escaneando el QR fijo de la sucursal. Cada persona puede participar una sola vez por partido, y solo en una sucursal por partido — no se puede repetir el registro en el mismo local ni anotarse en más de un local para el mismo partido.</p>
+        <h3>3. Cupos y cierre</h3>
+        <p>El concurso de cada sucursal se cierra automáticamente al llegar a 50 registros. Si el partido termina con el local cerrado, la ventana de participación se traslada a la apertura del local al día siguiente.</p>
+        <h3>4. Requisitos</h3>
+        <p>Deben ser mayores de 13 años. El premio no tiene valor de canje por dinero, no es transferible y debe reclamarse presentando la cuenta registrada en el mostrador del local dentro de los plazos que indique cada sucursal.</p>
+        <h3>5. Datos personales</h3>
+        <p>Los datos ingresados se usan únicamente para gestionar esta promoción, identificar al ganador y, si el usuario lo acepta, enviar novedades de Guchini. No se comparten con terceros ajenos a la operación del local.</p>
+        <h3>6. Cambios</h3>
+        <p>Guchini puede modificar, suspender o cancelar la promoción por causas de fuerza mayor, comunicándolo en este mismo sitio.</p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.querySelector('.modal-close').onclick = close;
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+}
+document.getElementById('btnTyc').onclick = mostrarTerminos;
+
+// ---------- ESCANEAR QR (cámara, para usuarios ya logueados) ----------
+let jsQRLoaded = null;
+function loadJsQR(){
+  if (jsQRLoaded) return jsQRLoaded;
+  jsQRLoaded = new Promise((resolve, reject) => {
+    if (window.jsQR) return resolve(window.jsQR);
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+    s.onload = () => resolve(window.jsQR);
+    s.onerror = () => reject(new Error('No se pudo cargar el lector de QR'));
+    document.head.appendChild(s);
+  });
+  return jsQRLoaded;
+}
+
+async function abrirScannerQR(){
+  let stream;
+  try {
+    const jsQR = await loadJsQR();
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <button class="modal-close" aria-label="Cerrar">×</button>
+        <h2 style="margin-top:0;">Escaneá el QR</h2>
+        <video id="scanVideo" playsinline muted style="width:100%;border-radius:14px;display:block;"></video>
+        <p class="sub" style="margin-top:10px;">Apuntá al QR de tu sucursal.</p>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    const video = overlay.querySelector('#scanVideo');
+    video.srcObject = stream;
+    await video.play();
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let activo = true;
+    const cerrar = () => { activo = false; stream.getTracks().forEach(t => t.stop()); overlay.remove(); };
+    overlay.querySelector('.modal-close').onclick = cerrar;
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) cerrar(); });
+    function tick(){
+      if (!activo) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(img.data, img.width, img.height);
+        if (code && code.data) {
+          let token = null;
+          try { token = new URL(code.data).searchParams.get('token'); } catch (e) { /* no es una URL */ }
+          if (token) {
+            cerrar();
+            history.replaceState(null, '', '?token=' + token);
+            renderRegistro(token);
+            return;
+          }
+        }
+      }
+      if (activo) requestAnimationFrame(tick);
+    }
+    tick();
+  } catch (err) {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    alert('No pudimos acceder a la cámara: ' + (err && err.message ? err.message : err));
+  }
+}
+
+// Envuelve cualquier promesa con un límite de tiempo. Si no responde a
+// tiempo, se rechaza en vez de dejar la app colgada para siempre esperando
+// (por ejemplo, si Supabase Auth no contesta getSession() en algunos
+// navegadores/entornos).
+function withTimeout(promise, ms = 6000, label = 'operación'){
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`TIMEOUT: ${label} tardó demasiado`)), ms)),
+  ]);
+}
+
+// Obtiene la sesión de forma segura. Si el estado guardado en el navegador
+// está corrupto (puede pasar tras un registro con auto-login), en vez de
+// romper toda la app, se limpia y se sigue como visitante. También protege
+// contra el caso en que getSession() se quede colgado sin responder nunca.
+async function safeGetSession(){
+  try {
+    const { data, error } = await withTimeout(sb.auth.getSession(), 10000, 'verificar sesión');
+    if (error) throw error;
+    return (data && data.session) || null;
+  } catch (err) {
+    // No forzamos signOut acá: si la red estuvo lenta un instante, cerrar la
+    // sesión de golpe es peor que solo reintentar en el próximo render.
+    console.error('No se pudo verificar la sesión (se reintentará):', err);
+    return null;
+  }
+}
+
+// Pantalla de emergencia: se muestra si algo revienta y no queremos
+// dejar al usuario con una página en blanco sin salida.
+function renderErrorFallback(err){
+  console.error('Error en la app:', err);
+  app.innerHTML = `
+    <div class="hero"><h1>Algo salió mal</h1><p>Hubo un problema al cargar esta pantalla.</p></div>
+    <div class="card">
+      <p class="sub">Podés intentar de nuevo o volver al inicio. Si el problema sigue, probá cerrar sesión.</p>
+      <button class="cta" id="btnReintentar">Reintentar</button>
+      <button class="cta ghost" id="btnVolverInicio" style="margin-top:10px;">Volver al inicio</button>
+      <button class="link-btn" id="btnCerrarSesionErr" style="display:block;margin:16px auto 0;">Cerrar sesión y volver al inicio</button>
+    </div>
+  `;
+  navbtns.innerHTML = `<a class="icon-btn primary" href="?">Inicio</a>`;
+  document.getElementById('btnReintentar').onclick = () => router();
+  document.getElementById('btnVolverInicio').onclick = () => { location.href = '?'; };
+  document.getElementById('btnCerrarSesionErr').onclick = async () => {
+    try { await sb.auth.signOut(); } catch (e) { /* noop */ }
+    location.href = '?';
+  };
+}
+
+// ---------- ROUTER ----------
+async function router(){
+  try {
+    stopLive();
+    const params = new URLSearchParams(location.search);
+    const view = params.get('view');
+    const token = params.get('token');
+    await renderNav();
+
+    if (token) return await renderRegistro(token);
+    if (view === 'login') return await renderLogin();
+    if (view === 'nueva-clave') return renderNuevaClave();
+    if (view === 'dashboard') return await renderDashboard();
+    if (view === 'admin') return await renderAdmin();
+    return await renderHome();
+  } catch (err) {
+    renderErrorFallback(err);
+  }
+}
+
+// ---------- HOME ----------
+function renderHome(){
+  app.innerHTML = `
+    <section class="hero">
+      <span class="pill">Mundial 2026</span>
+      <h1>Si Argentina gana, <br/>vos ganás medio Guchini 🥪</h1>
+      <p>Las primeras 50 personas que lleguen a cada sucursal después de cada triunfo de la Selección se llevan medio Guchini a elección, gratis.</p>
+    </section>
+
+    <div class="card">
+      <h2>¿Cómo funciona?</h2>
+      <p class="sub">Buscá el QR pegado en el local. Cuando gana Argentina y el local activa el concurso, los primeros 50 que lo escaneen ganan. El resto del tiempo, el mismo QR te suma a nuestra base.</p>
+      <button class="cta" id="btnRegGeneral">Registrarme en Guchini</button>
+      <p class="sub" style="margin-top:10px;">⚠️ Si el partido termina y el local está cerrado o por cerrar, la promo se traslada a la apertura del día siguiente. Ganan los primeros 50 en llegar.</p>
+    </div>
+
+    <div class="card">
+      <h2>Nuestras sucursales</h2>
+      <div class="locales">
+        ${SUCURSALES.map(s => `<div class="local-item"><b>${esc(s.nombre)}</b></div>`).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('btnRegGeneral').onclick = async () => {
+    const session = await safeGetSession();
+    if (session) { location.href = '?view=dashboard'; return; }
+    renderRegistro(null);
+  };
+}
+
+// ---------- REGISTRO ----------
+async function renderRegistro(token){
+  app.innerHTML = `<div class="loader">Cargando...</div>`;
+  let info = null;
+  if (token) {
+    let data, error;
+    try {
+      ({ data, error } = await withTimeout(sb.rpc('sucursal_info', { p_token: token }), 8000, 'cargar sucursal'));
+    } catch (timeoutErr) {
+      error = timeoutErr;
+    }
+    info = (data && data[0]) || null;
+    if (error || !info) {
+      app.innerHTML = `<div class="card"><h2>QR no válido</h2><p class="sub">Este código no existe o la sucursal no está activa. Pedí ayuda en el mostrador.</p><button class="cta ghost" id="btnVolverInicioQr">Volver al inicio</button></div>`;
+      document.getElementById('btnVolverInicioQr').onclick = () => { history.pushState(null, '', '?'); renderNav(); renderHome(); };
+      return;
+    }
+  }
+
+  const session = await safeGetSession();
+
+  // Usuario ya logueado + concurso activo en esta sucursal → "un toque" en vez del formulario completo
+  if (token && info && info.concurso_activo && session) {
+    renderUnirseConcurso(token, info, session);
+    return;
+  }
+
+  const cuposRestantes = (info && info.concurso_activo) ? Math.max(0, 50 - info.cupos_usados) : null;
+
+  app.innerHTML = `
+    ${info ? (info.concurso_activo ? `
+      <div class="hero">
+        <span class="pill">🔥 Concurso en vivo · ${esc(info.partido_rival || ('Partido ' + info.partido_numero))}</span>
+        <h1>${esc(info.sucursal_nombre)}</h1>
+        <p>${esc(info.sucursal_direccion)}</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><b>${info.cupos_usados}</b><span>Registrados</span></div>
+        <div class="stat"><b>${cuposRestantes}</b><span>Cupos libres</span></div>
+        <div class="stat"><b>50</b><span>Ganan medio Guchini</span></div>
+      </div>
+    ` : `
+      <div class="hero">
+        <span class="pill">Registro general</span>
+        <h1>${esc(info.sucursal_nombre)}</h1>
+        <p>${esc(info.sucursal_direccion)}</p>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <p class="sub" style="margin:0;">Ahora mismo no hay ningún concurso activo en esta sucursal. Igual te podés registrar para sumarte a nuestra base — en cuanto Argentina gane y el local active el concurso, los próximos que escaneen este mismo QR van a competir por el medio Guchini.</p>
+      </div>
+    `) : `
+      <div class="hero"><h1>Registrate en Guchini</h1><p>Sumate a nuestra base para enterarte de futuras promos.</p></div>
+    `}
+
+    <div class="card">
+      <h2>Tus datos</h2>
+      <p class="sub">Completá el formulario para registrarte${(info && info.concurso_activo) ? ' y anotarte en el concurso de este partido' : ''}.</p>
+      <form id="formReg">
+        <label>Nombre y apellido</label>
+        <input type="text" name="nombre" required minlength="2" placeholder="Juan Pérez" />
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="tu@email.com" />
+        <label>Celular</label>
+        <input type="tel" name="celular" required minlength="6" placeholder="261 123 4567" />
+        <label>Fecha de nacimiento</label>
+        <input type="date" name="fecha_nacimiento" required />
+        <label>Elegí una contraseña</label>
+        <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+        <label>Repetí la contraseña</label>
+        <input type="password" name="password2" required minlength="6" placeholder="Repetí tu contraseña" />
+        <div class="check-row">
+          <input type="checkbox" id="consent" required />
+          <span>Acepto que Guchini use mis datos únicamente para esta promoción y para enviarme novedades. Con este email y contraseña vas a poder entrar a ver tu posición.</span>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="consentTerminos" required />
+          <span>Leí y acepto los <button type="button" class="link-btn" id="linkTerminosReg" style="font-size:12px;">términos y condiciones y las reglas del concurso</button>.</span>
+        </div>
+        <button class="cta" type="submit" id="btnSubmit">Confirmar registro</button>
+      </form>
+      <div id="regMsg"></div>
+      ${session ? `<p style="text-align:center;margin-top:14px;"><button class="link-btn" id="btnNoSoyYo">¿No sos vos? Cerrar sesión</button></p>` : ''}
+    </div>
+  `;
+
+  document.getElementById('linkTerminosReg').onclick = () => mostrarTerminos();
+
+  if (session) {
+    document.getElementById('btnNoSoyYo').onclick = async () => { await sb.auth.signOut(); router(); };
+  }
+
+  document.getElementById('formReg').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    const msgBox = document.getElementById('regMsg');
+    msgBox.innerHTML = '';
+    btn.disabled = true; btn.textContent = 'Enviando...';
+
+    const fd = new FormData(e.target);
+    const password = fd.get('password');
+    const password2 = fd.get('password2');
+    if (password !== password2) {
+      msgBox.innerHTML = `<div class="msg err">Las contraseñas no coinciden.</div>`;
+      btn.disabled = false; btn.textContent = 'Confirmar registro';
+      return;
+    }
+    const email = fd.get('email');
+    const payload = {
+      action: 'register',
+      nombre: fd.get('nombre'),
+      email,
+      celular: fd.get('celular'),
+      fecha_nacimiento: fd.get('fecha_nacimiento'),
+      password,
+      qr_token: token || null,
+    };
+
+    try {
+      const res = await withTimeout(fetch(FUNCTIONS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify(payload),
+      }), 10000, 'enviar registro');
+      const data = await res.json();
+
+      if (!res.ok) {
+        msgBox.innerHTML = `<div class="msg err">${esc(data.message || 'No pudimos completar el registro. Probá de nuevo.')}</div>`;
+        btn.disabled = false; btn.textContent = 'Confirmar registro';
+        return;
+      }
+
+      // Login automático con la contraseña recién elegida
+      await sb.auth.signInWithPassword({ email, password });
+      renderResultado(data);
+    } catch (err) {
+      msgBox.innerHTML = `<div class="msg err">Error de conexión. Probá de nuevo en unos segundos.</div>`;
+      btn.disabled = false; btn.textContent = 'Confirmar registro';
+    }
+  });
+}
+
+// "Un toque": usuario ya logueado escanea el QR de una sucursal con concurso activo
+async function renderUnirseConcurso(token, info, session){
+  // Confirmación automática: llegar acá ya significa "logueado + escaneó un QR con concurso activo",
+  // así que anotamos directo sin pedir un clic extra.
+  app.innerHTML = `
+    <div class="hero">
+      <span class="pill">🔥 Concurso en vivo · ${esc(info.partido_rival || ('Partido ' + info.partido_numero))}</span>
+      <h1>${esc(info.sucursal_nombre)}</h1>
+    </div>
+    <div class="card">
+      <div class="loader">Confirmando tu lugar...</div>
+      <p class="sub" style="text-align:center;">Sesión: <b>${esc(session.user.email)}</b></p>
+      <p style="text-align:center;margin-top:14px;"><button class="link-btn" id="btnNoSoyYo2">¿No sos vos? Cerrar sesión y registrar a otra persona</button></p>
+    </div>
+  `;
+  document.getElementById('btnNoSoyYo2').onclick = async () => { await sb.auth.signOut(); router(); };
+
+  const { data, error } = await sb.rpc('unirse_concurso', { p_qr_token: token });
+  if (error) {
+    const msg = error.message || '';
+    let texto = 'No pudimos confirmar tu lugar. Probá de nuevo.';
+    if (msg.includes('YA_REGISTRADO_PROMO')) texto = 'Ya estás anotado en este concurso. Mostrá tu cuenta en el mostrador.';
+    else if (msg.includes('YA_REGISTRADO_OTRO_LOCAL')) texto = 'Ya te anotaste en este mismo partido en otra sucursal. Solo se puede en un local por partido.';
+    else if (msg.includes('SIN_CONCURSO_ACTIVO')) texto = 'El concurso ya cerró.';
+    else if (msg.includes('SIN_PERFIL')) { renderRegistro(token); return; }
+    app.innerHTML = `<div class="card"><div class="msg err">${esc(texto)}</div><button class="cta ghost" id="btnVolverInicioUnirse" style="margin-top:14px;">Volver al inicio</button></div>`;
+    document.getElementById('btnVolverInicioUnirse').onclick = () => { history.pushState(null, '', '?'); renderNav(); renderHome(); };
+    return;
+  }
+  const r = Array.isArray(data) ? data[0] : data;
+  renderResultado({ modo: r.modo, posicion: r.posicion, ganador: r.ganador, sucursal: r.sucursal_nombre, partido_numero: r.partido_numero });
+}
+
+function renderResultado(data, esCuenta){
+  let body;
+  if (data.modo === 'concurso' && data.posicion) {
+    body = data.ganador ? `
+      <div class="result-big">
+        <div class="trophy">🥪🎉</div>
+        <div class="num">#${data.posicion}</div>
+        <div class="cap">¡Ganaste medio Guchini gratis!</div>
+      </div>
+      <p class="sub" style="text-align:center;">Fuiste de los primeros 50 en <b>${esc(data.sucursal)}</b>. Mostrá tu cuenta en el mostrador para retirarlo.</p>
+    ` : `
+      <div class="result-big">
+        <div class="trophy">🇦🇷</div>
+        <div class="num">#${data.posicion}</div>
+        <div class="cap">Puesto de llegada</div>
+      </div>
+      <p class="sub" style="text-align:center;">Esta vez no llegaste entre los primeros 50 en <b>${esc(data.sucursal)}</b>, ¡pero seguimos jugando cada partido!</p>
+    `;
+  } else {
+    body = `
+      <div class="result-big">
+        <div class="trophy">🥪</div>
+        <div class="cap">¡Listo, quedaste registrado!</div>
+      </div>
+    `;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      ${body}
+      ${esCuenta ? '' : `
+      <div class="msg ok">
+        ✅ Ya quedaste con tu cuenta activa. Entrá cuando quieras con tu email y contraseña para ver tu posición.
+      </div>
+      <button class="cta" id="btnVerCuentaResultado">Ver mi cuenta</button>
+      `}
+      <button class="cta ghost" id="btnVolverInicioResultado" style="margin-top:10px;">Volver al inicio</button>
+      ${esCuenta ? `<button class="link-btn" id="btnLogoutResultado" style="display:block;margin:16px auto 0;">Cerrar sesión</button>` : ''}
+    </div>
+  `;
+  if (!esCuenta) {
+    document.getElementById('btnVerCuentaResultado').onclick = () => { history.pushState(null, '', '?view=dashboard'); renderDashboard(); };
+  }
+  document.getElementById('btnVolverInicioResultado').onclick = () => { history.pushState(null, '', '?'); renderNav(); renderHome(); };
+  if (esCuenta) {
+    document.getElementById('btnLogoutResultado').onclick = async () => { await sb.auth.signOut(); location.href = '?'; };
+  }
+}
+
+// ---------- LOGIN ----------
+function renderLogin(){
+  app.innerHTML = `
+    <div class="hero"><h1>Iniciar sesión</h1><p>Clientes: con tu email. Admins: con tu usuario.</p></div>
+    <div class="card">
+      <form id="formLogin">
+        <label>Email o usuario</label>
+        <input type="text" name="identificador" required autocomplete="username" />
+        <label>Contraseña</label>
+        <input type="password" name="password" required />
+        <button class="cta" type="submit" id="btnLogin">Ingresar</button>
+      </form>
+      <div id="loginMsg"></div>
+      <p style="text-align:center;margin-top:16px;"><button class="link-btn" id="btnOlvide">¿Olvidaste tu contraseña?</button></p>
+      <p style="text-align:center;margin-top:8px;"><button class="link-btn" id="btnIrRegistro">¿No tenés cuenta? Registrate</button></p>
+    </div>
+  `;
+  document.getElementById('btnIrRegistro').onclick = () => { history.pushState(null, '', '?'); renderNav(); renderHome(); };
+  document.getElementById('formLogin').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const msgBox = document.getElementById('loginMsg');
+    btn.disabled = true; btn.textContent = 'Ingresando...';
+    const fd = new FormData(e.target);
+    let ident = String(fd.get('identificador') || '').trim();
+    if (!ident.includes('@')) {
+      const { data: resuelto } = await sb.rpc('resolver_username', { p_username: ident });
+      if (!resuelto) {
+        msgBox.innerHTML = `<div class="msg err">Usuario o contraseña incorrectos.</div>`;
+        btn.disabled = false; btn.textContent = 'Ingresar';
+        return;
+      }
+      ident = resuelto;
+    }
+    const { error } = await sb.auth.signInWithPassword({ email: ident, password: fd.get('password') });
+    if (error) {
+      msgBox.innerHTML = `<div class="msg err">Email/usuario o contraseña incorrectos.</div>`;
+      btn.disabled = false; btn.textContent = 'Ingresar';
+      return;
+    }
+    history.replaceState(null, '', '?view=dashboard');
+    renderDashboard();
+  });
+  document.getElementById('btnOlvide').onclick = () => renderRecuperar();
+}
+
+function renderRecuperar(){
+  app.innerHTML = `
+    <div class="hero"><h1>Recuperar contraseña</h1><p>Solo para clientes registrados con email. Te mandamos un link para elegir una nueva.</p></div>
+    <div class="card">
+      <form id="formRecuperar">
+        <label>Email</label>
+        <input type="email" name="email" required />
+        <button class="cta" type="submit" id="btnRecuperar">Enviar link de recuperación</button>
+      </form>
+      <div id="recMsg"></div>
+      <p style="text-align:center;margin-top:16px;"><button class="link-btn" id="btnVolverLogin">Volver a ingresar</button></p>
+    </div>
+  `;
+  document.getElementById('btnVolverLogin').onclick = () => renderLogin();
+  document.getElementById('formRecuperar').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnRecuperar');
+    const msgBox = document.getElementById('recMsg');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    const fd = new FormData(e.target);
+    const { error } = await sb.auth.resetPasswordForEmail(fd.get('email'), { redirectTo: location.origin + location.pathname + '?view=nueva-clave' });
+    msgBox.innerHTML = error
+      ? `<div class="msg err">No pudimos enviar el link. Probá de nuevo.</div>`
+      : `<div class="msg ok">✅ Si ese email está registrado, te llegó un link para elegir una nueva contraseña.</div>`;
+    btn.disabled = false; btn.textContent = 'Enviar link de recuperación';
+  });
+}
+
+function renderNuevaClave(){
+  app.innerHTML = `
+    <div class="hero"><h1>Elegí tu nueva contraseña</h1></div>
+    <div class="card">
+      <form id="formNuevaClave">
+        <label>Nueva contraseña</label>
+        <input type="password" name="password" required minlength="6" />
+        <button class="cta" type="submit" id="btnNuevaClave">Guardar</button>
+      </form>
+      <div id="nvMsg"></div>
+    </div>
+  `;
+  document.getElementById('formNuevaClave').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnNuevaClave');
+    const msgBox = document.getElementById('nvMsg');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    const fd = new FormData(e.target);
+    const { error } = await sb.auth.updateUser({ password: fd.get('password') });
+    if (error) {
+      msgBox.innerHTML = `<div class="msg err">No pudimos guardar la contraseña. Pedí el link de nuevo.</div>`;
+      btn.disabled = false; btn.textContent = 'Guardar';
+      return;
+    }
+    msgBox.innerHTML = `<div class="msg ok">✅ Contraseña actualizada.</div>`;
+    setTimeout(() => { location.href = '?view=dashboard'; }, 1200);
+  });
+}
+
+// ---------- DASHBOARD ----------
+async function renderDashboard(){
+  const session = await safeGetSession();
+  if (!session) { location.href = '?view=login'; return; }
+
+  app.innerHTML = `<div class="loader">Cargando tu cuenta...</div>`;
+
+  const [misRes, adminRes] = await Promise.allSettled([
+    withTimeout(sb.rpc('mis_registros'), 8000, 'cargar tus registros'),
+    withTimeout(sb.rpc('mi_admin_info'), 8000, 'verificar admin'),
+  ]);
+  const mis = (misRes.status === 'fulfilled' && !misRes.value.error) ? misRes.value.data : null;
+  const adminInfoRaw = (adminRes.status === 'fulfilled' && !adminRes.value.error) ? adminRes.value.data : null;
+  const admin = Array.isArray(adminInfoRaw) ? adminInfoRaw[0] : adminInfoRaw;
+
+  // Ir directo: admins al panel, ganadores a su posición — sin pantalla intermedia.
+  // Navegación sin recargar la página (evita re-descargar todo y repetir la consulta de rol).
+  if (admin && admin.role) {
+    history.replaceState(null, '', '?view=admin');
+    return renderAdmin(admin);
+  }
+  const ganado = mis && mis.find(r => r.ganador);
+  if (ganado) {
+    renderResultado({ modo: 'concurso', posicion: ganado.posicion, ganador: true, sucursal: ganado.sucursal_nombre, partido_numero: ganado.partido_numero }, true);
+    return;
+  }
+
+  const miNumero = (mis && mis[0] && mis[0].numero_cliente) ? mis[0].numero_cliente : null;
+  const misConcursos = (mis || []).filter(r => r.modo === 'concurso' && r.sucursal_slug);
+  const misSucursalSlug = misConcursos[0]?.sucursal_slug || null;
+  const misSucursalNombre = misConcursos[0]?.sucursal_nombre || null;
+  const misPartidos = [...new Set(misConcursos.map(r => r.partido_numero).filter(Boolean))];
+  if (!misPartidos.length) misPartidos.push(...PARTIDOS);
+  app.innerHTML = `
+    <div class="hero"><h1>Hola 👋</h1><p>${esc(session.user.email)}</p>${miNumero ? `<p><span class="tag muted">Cliente N° ${miNumero}</span></p>` : ''}</div>
+
+    <div class="card">
+      <h2>Escanear QR</h2>
+      <p class="sub">¿Estás en el local y ganó Argentina? Escaneá el QR de la sucursal para anotarte en el concurso.</p>
+      <button class="cta" id="btnEscanear">📷 Escanear QR</button>
+    </div>
+
+    <div class="card">
+      <h2>Tus registros</h2>
+      <p class="sub">Historial de partidos en los que participaste.</p>
+      ${(mis && mis.length) ? `
+        <table>
+          <thead><tr><th>Sucursal</th><th>Partido</th><th>Puesto</th><th></th></tr></thead>
+          <tbody>
+            ${mis.map(r => `
+              <tr>
+                <td>${esc(r.sucursal_nombre || 'General')}</td>
+                <td>${r.partido_numero ? '#' + r.partido_numero : '—'}</td>
+                <td>${r.posicion ?? '—'}</td>
+                <td>${r.ganador ? '<span class="tag">Ganador</span>' : ''}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : `<p class="sub">Todavía no tenés registros ligados a esta cuenta.</p>`}
+    </div>
+
+    ${misSucursalSlug ? `
+    <div class="card">
+      <h2><span class="live-dot"></span>Lista en vivo de tu sucursal</h2>
+      <p class="sub">${misSucursalNombre ? esc(misSucursalNombre) : 'Tu sucursal'} — se actualiza sola. Solo se ve la sucursal donde te registraste.</p>
+      ${misPartidos.length > 1 ? `<select id="selPartido">${misPartidos.map(n => `<option value="${n}">Partido ${n}</option>`).join('')}</select>` : ''}
+      <div id="leaderboardBox" style="margin-top:14px;"></div>
+    </div>
+    ` : ''}
+
+    ${admin ? `<div class="card"><h2>Panel de administración</h2><p class="sub">Acceso habilitado (${admin.role === 'super' ? 'superadmin' : 'admin de sucursal'}).</p><a class="cta" style="display:block;text-align:center;text-decoration:none;" href="?view=admin">Ir al panel</a></div>` : ''}
+
+    <div class="card">
+      <h2>Contraseña</h2>
+      <form id="formCambiarClave">
+        <label>Nueva contraseña</label>
+        <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+        <button class="cta slim" type="submit" id="btnCambiarClave">Cambiar contraseña</button>
+      </form>
+      <div id="cambiarClaveMsg"></div>
+    </div>
+
+    <div class="card">
+      <button class="cta ghost" id="btnLogout">Cerrar sesión</button>
+    </div>
+  `;
+
+  document.getElementById('btnEscanear').onclick = async () => {
+    const btn = document.getElementById('btnEscanear');
+    btn.disabled = true; btn.textContent = 'Abriendo cámara...';
+    await abrirScannerQR();
+    btn.disabled = false; btn.textContent = '📷 Escanear QR';
+  };
+
+  document.getElementById('formCambiarClave').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnCambiarClave');
+    const msgBox = document.getElementById('cambiarClaveMsg');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    const fd = new FormData(e.target);
+    const { error } = await sb.auth.updateUser({ password: fd.get('password') });
+    msgBox.innerHTML = error
+      ? `<div class="msg err">No pudimos cambiar la contraseña.</div>`
+      : `<div class="msg ok">✅ Contraseña actualizada.</div>`;
+    btn.disabled = false; btn.textContent = 'Cambiar contraseña';
+    e.target.reset();
+  });
+
+  if (misSucursalSlug) {
+    const loadLeaderboard = async () => {
+      const selEl = document.getElementById('selPartido');
+      const numero = selEl ? parseInt(selEl.value, 10) : misPartidos[0];
+      const box = document.getElementById('leaderboardBox');
+      if (!box) return;
+      const { data, error } = await sb.rpc('get_leaderboard', { p_sucursal_slug: misSucursalSlug, p_partido_numero: numero });
+      if (error || !data || !data.length) {
+        box.innerHTML = `<p class="sub">Todavía no hay registros para este partido en tu sucursal.</p>`;
+        return;
+      }
+      box.innerHTML = `
+        <table>
+          <thead><tr><th>#</th><th>Nombre</th><th></th></tr></thead>
+          <tbody>
+            ${data.map(r => {
+              const medalla = r.posicion === 1 ? '🥇 ' : r.posicion === 2 ? '🥈 ' : r.posicion === 3 ? '🥉 ' : '';
+              const esYo = r.nombre_public && session.user.user_metadata && (session.user.user_metadata.nombre||'').startsWith(r.nombre_public.split(' ')[0]);
+              return `
+              <tr class="${esYo ? 'me' : ''}">
+                <td>${medalla}${r.posicion}</td>
+                <td>${esc(r.nombre_public)}</td>
+                <td>${r.ganador ? '<span class="tag">Ganó</span>' : ''}</td>
+              </tr>
+            `;}).join('')}
+          </tbody>
+        </table>
+      `;
+    };
+    const selEl = document.getElementById('selPartido');
+    if (selEl) selEl.addEventListener('change', loadLeaderboard);
+    loadLeaderboard();
+    stopLive();
+    liveTimer = setInterval(loadLeaderboard, 5000);
+  }
+
+  document.getElementById('btnLogout').onclick = async () => {
+    await sb.auth.signOut();
+    location.href = '?';
+  };
+}
+
+// ---------- ADMIN ----------
+async function renderAdmin(adminInfoPrefetched){
+  let adminInfo = adminInfoPrefetched;
+
+  if (!adminInfo) {
+    const session = await safeGetSession();
+    if (!session) { location.href = '?view=login'; return; }
+
+    app.innerHTML = `<div class="loader">Verificando acceso...</div>`;
+    let adminInfoData, adminInfoErr;
+    try {
+      ({ data: adminInfoData, error: adminInfoErr } = await withTimeout(sb.rpc('mi_admin_info'), 8000, 'verificar admin'));
+    } catch (timeoutErr) {
+      adminInfoErr = timeoutErr;
+    }
+    if (adminInfoErr) {
+      app.innerHTML = `<div class="card"><h2>No pudimos verificar tu acceso</h2><p class="sub">Probá recargar la página en unos segundos.</p><button class="cta" id="btnRetryAdmin">Reintentar</button></div>`;
+      document.getElementById('btnRetryAdmin').onclick = () => router();
+      return;
+    }
+    adminInfo = Array.isArray(adminInfoData) ? adminInfoData[0] : adminInfoData;
+  }
+  if (!adminInfo || !adminInfo.role) {
+    app.innerHTML = `<div class="card"><h2>Acceso denegado</h2><p class="sub">Esta cuenta no tiene permisos de administrador.</p></div>`;
+    return;
+  }
+  const isSuper = adminInfo.role === 'super';
+  const miSucursal = adminInfo.sucursal_slug;
+
+  // Ordenar sucursales: la propia primero (admin normal)
+  const sucursalesOrden = [...SUCURSALES].sort((a, b) => {
+    if (a.slug === miSucursal) return -1;
+    if (b.slug === miSucursal) return 1;
+    return 0;
+  });
+
+  app.innerHTML = `
+    <div class="hero">
+      <h1>Panel Guchini Mundial</h1>
+      <p><span class="tag role">${isSuper ? 'Superadmin' : 'Admin de sucursal'}</span></p>
+      <p class="sub">${isSuper ? 'Activá el concurso cuando gane Argentina' : `Viendo por defecto: ${esc(adminInfo.sucursal_nombre || 'sin sucursal asignada')}`}</p>
+      <p style="text-align:center;"><button class="link-btn" id="btnLogoutAdmin">Cerrar sesión</button></p>
+    </div>
+    ${isSuper ? `<div id="statsBox"></div>` : ''}
+
+    ${isSuper ? `
+    <div class="card">
+      <h2>🇦🇷 Argentina ganó</h2>
+      <p class="sub">Activa el concurso en las 3 sucursales al mismo tiempo, para el mismo partido.</p>
+      <div class="grid2">
+        <select id="globalPartido">${PARTIDOS.map(n => `<option value="${n}">Partido ${n}</option>`).join('')}</select>
+        <button class="cta" id="btnActivarTodas">Activar en todas</button>
+      </div>
+      <div id="globalActivarMsg"></div>
+    </div>
+    ` : ''}
+
+    <div id="sucursalesBox"></div>
+
+    <div class="card">
+      <h2><span class="live-dot"></span>Lista en vivo</h2>
+      <p class="sub">Se actualiza sola cada pocos segundos mientras esta pantalla esté abierta.</p>
+      <select id="liveSucursal">${sucursalesOrden.map(s => `<option value="${s.slug}">${esc(s.nombre)}${s.slug === miSucursal ? ' (tu sucursal)' : ''}</option>`).join('')}</select>
+      <div id="liveBox" style="margin-top:14px;"></div>
+    </div>
+
+    ${isSuper ? `
+    <div class="card">
+      <h2>Detalle de registros (con datos de contacto)</h2>
+      <div class="grid2">
+        <select id="admSucursal"><option value="">Todas las sucursales</option>${SUCURSALES.map(s => `<option value="${s.slug}">${esc(s.nombre)}</option>`).join('')}</select>
+        <label style="display:flex;align-items:center;gap:8px;margin:14px 0 0;font-weight:500;color:var(--text);">
+          <input type="checkbox" id="admSoloConcurso" style="width:auto;" /> Solo concurso
+        </label>
+      </div>
+      <button class="cta" id="btnFiltrar" style="margin-top:12px;">Buscar</button>
+      <button class="cta ghost" id="btnCsv" style="margin-top:10px;">Descargar CSV</button>
+      <div id="admBox" style="margin-top:14px;overflow-x:auto;"></div>
+    </div>
+    ` : ''}
+  `;
+
+  async function loadStats(){
+    if (!isSuper) return;
+    const { data: stats } = await sb.rpc('admin_stats');
+    const s = (stats && stats[0]) || { total_registros: 0, total_concurso: 0, total_general: 0, total_ganadores: 0 };
+    document.getElementById('statsBox').innerHTML = `
+      <div class="stat-grid">
+        <div class="stat"><b>${s.total_registros}</b><span>Total registros</span></div>
+        <div class="stat"><b>${s.total_concurso}</b><span>En concursos</span></div>
+        <div class="stat"><b>${s.total_ganadores}</b><span>Ganadores</span></div>
+      </div>
+    `;
+  }
+
+  async function loadSucursales(){
+    const box = document.getElementById('sucursalesBox');
+    box.innerHTML = `<div class="loader">Cargando sucursales...</div>`;
+    const { data, error } = await sb.rpc('admin_estado_sucursales');
+    if (error || !data) { box.innerHTML = `<div class="msg err">No se pudo cargar el estado de las sucursales.</div>`; return; }
+
+    const ordenado = [...data].sort((a, b) => {
+      if (a.sucursal_slug === miSucursal) return -1;
+      if (b.sucursal_slug === miSucursal) return 1;
+      return 0;
+    });
+
+    box.innerHTML = ordenado.map(s => `
+      <div class="card" data-card="${s.sucursal_slug}">
+        <h2>${esc(s.sucursal_nombre)} ${s.sucursal_slug === miSucursal ? '<span class="tag muted">tu sucursal</span>' : ''}</h2>
+        ${s.concurso_activo ? `
+          <p class="sub" style="margin:0 0 12px;">
+            <span class="tag">Concurso activo</span>
+            &nbsp;${esc(s.partido_rival || ('Partido ' + s.partido_numero))} · ${s.cupos_usados}/50 registrados
+          </p>
+          ${isSuper ? `<button class="cta ghost" data-cerrar="${s.sucursal_slug}">Cerrar concurso</button>` : ''}
+        ` : `
+          <p class="sub" style="margin:0 0 12px;">Sin concurso activo. El QR de esta sucursal registra en modo general.</p>
+          ${isSuper ? `
+          <div class="grid2">
+            <select data-partido-select="${s.sucursal_slug}">${PARTIDOS.map(n => `<option value="${n}">Partido ${n}</option>`).join('')}</select>
+            <button class="cta" data-activar="${s.sucursal_slug}">Marcar partido ganado</button>
+          </div>
+          ` : ''}
+        `}
+        <button class="cta ghost slim" data-verqr="${s.sucursal_slug}" data-nombre="${esc(s.sucursal_nombre)}">📱 Ver / descargar QR</button>
+      </div>
+    `).join('');
+
+    box.querySelectorAll('[data-verqr]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        showQrModal(btn.getAttribute('data-verqr'), btn.getAttribute('data-nombre'));
+      });
+    });
+
+    box.querySelectorAll('[data-activar]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const slug = btn.getAttribute('data-activar');
+        const sel = box.querySelector('[data-partido-select="' + slug + '"]');
+        const numero = parseInt(sel.value, 10);
+        btn.disabled = true; btn.textContent = 'Activando...';
+        const { error } = await sb.rpc('activar_concurso', { p_sucursal_slug: slug, p_partido_numero: numero });
+        if (error) { alert('No se pudo activar: ' + error.message); }
+        await loadSucursales();
+        await loadStats();
+      });
+    });
+
+    box.querySelectorAll('[data-cerrar]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        const slug = btn.getAttribute('data-cerrar');
+        btn.disabled = true; btn.textContent = 'Cerrando...';
+        const { error } = await sb.rpc('cerrar_concurso', { p_sucursal_slug: slug });
+        if (error) { alert('No se pudo cerrar: ' + error.message); }
+        await loadSucursales();
+        await loadStats();
+      });
+    });
+  }
+
+  // ---- Popup de QR por sucursal ----
+  function showQrModal(slug, nombre){
+    const isSel = document.body.classList.contains('modo-seleccion');
+    const src = `guchini_qr_${slug}_${isSel ? 'seleccion' : 'clasico'}.png`;
+    const fallback = `guchini_qr_${slug}_clasico.png`;
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <button class="modal-close" aria-label="Cerrar">×</button>
+        <h2 style="margin-top:0;">${esc(nombre)}</h2>
+        <img id="qrModalImg" src="${src}" alt="QR ${esc(nombre)}" />
+        <a class="cta" style="display:block;text-decoration:none;margin-top:16px;" id="qrDownload" href="${src}" download="guchini_qr_${slug}.png">Descargar para imprimir</a>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    const img = overlay.querySelector('#qrModalImg');
+    img.onerror = () => {
+      img.src = fallback;
+      overlay.querySelector('#qrDownload').href = fallback;
+    };
+    const close = () => overlay.remove();
+    overlay.querySelector('.modal-close').onclick = close;
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  }
+
+  if (isSuper) {
+    document.getElementById('btnActivarTodas').addEventListener('click', async () => {
+      const btn = document.getElementById('btnActivarTodas');
+      const msgBox = document.getElementById('globalActivarMsg');
+      const numero = parseInt(document.getElementById('globalPartido').value, 10);
+      if (!confirm(`¿Activar el concurso del Partido ${numero} en las 3 sucursales ahora?`)) return;
+      btn.disabled = true; btn.textContent = 'Activando...';
+      msgBox.innerHTML = '';
+      const resultados = await Promise.all(SUCURSALES.map(async (s) => {
+        const { error } = await sb.rpc('activar_concurso', { p_sucursal_slug: s.slug, p_partido_numero: numero });
+        return { nombre: s.nombre, ok: !error, error };
+      }));
+      const fallidas = resultados.filter(r => !r.ok);
+      msgBox.innerHTML = fallidas.length
+        ? `<div class="msg err">Falló en: ${fallidas.map(f => esc(f.nombre)).join(', ')}.</div>`
+        : `<div class="msg ok">✅ Concurso activado en las 3 sucursales.</div>`;
+      btn.disabled = false; btn.textContent = 'Activar en todas';
+      await loadSucursales();
+      await loadStats();
+    });
+  }
+
+  // ---- Lista en vivo (polling) ----
+  async function loadLive(){
+    const slug = document.getElementById('liveSucursal').value;
+    const box = document.getElementById('liveBox');
+    const { data, error } = await sb.rpc('admin_lista_vivo', { p_sucursal_slug: slug });
+    if (error) { box.innerHTML = `<p class="sub">No se pudo cargar la lista en vivo.</p>`; return; }
+    if (!data || !data.length) { box.innerHTML = `<p class="sub">Todavía no hay nadie anotado en el concurso de esta sucursal.</p>`; return; }
+    const activo = data[0].concurso_activo;
+    box.innerHTML = `
+      <p class="sub" style="margin:0 0 8px;">${activo ? '<span class="tag">Concurso activo</span>' : '<span class="tag muted">Último concurso (cerrado)</span>'} · ${data.length}/50</p>
+      <table>
+        <thead><tr><th>#</th><th>Cliente</th><th>Nombre</th><th>Hora</th><th></th></tr></thead>
+        <tbody>
+          ${data.map(r => {
+            const medalla = r.posicion === 1 ? '🥇 ' : r.posicion === 2 ? '🥈 ' : r.posicion === 3 ? '🥉 ' : '';
+            const podio = r.posicion && r.posicion <= 3 ? 'style="background:var(--accent-soft);font-weight:700;"' : '';
+            return `
+            <tr ${podio}>
+              <td>${medalla}${r.posicion ?? '—'}</td>
+              <td>#${r.numero_cliente ?? '—'}</td>
+              <td>${esc(r.nombre)}</td>
+              <td>${new Date(r.creado_en).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}</td>
+              <td>${r.ganador ? '🏆' : ''}</td>
+            </tr>
+          `;}).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+  document.getElementById('liveSucursal').value = miSucursal && sucursalesOrden.some(s => s.slug === miSucursal) ? miSucursal : sucursalesOrden[0].slug;
+  document.getElementById('liveSucursal').addEventListener('change', loadLive);
+  stopLive();
+  loadLive();
+  liveTimer = setInterval(loadLive, 4000);
+
+  // ---- Detalle + CSV (solo superadmin) ----
+  let lastRows = [];
+  if (isSuper) {
+    async function loadAdmin(){
+      const slug = document.getElementById('admSucursal').value || null;
+      const soloConcurso = document.getElementById('admSoloConcurso').checked;
+      const box = document.getElementById('admBox');
+      box.innerHTML = `<div class="loader">Cargando...</div>`;
+      const { data, error } = await sb.rpc('admin_dashboard', { p_sucursal_slug: slug, p_solo_concurso: soloConcurso });
+      lastRows = data || [];
+      if (error || !lastRows.length) { box.innerHTML = `<p class="sub">Sin resultados.</p>`; return; }
+      box.innerHTML = `
+        <table>
+          <thead><tr><th>Cliente</th><th>Nombre</th><th>Email</th><th>Celular</th><th>Sucursal</th><th>Partido</th><th>Puesto</th></tr></thead>
+          <tbody>
+            ${lastRows.map(r => `
+              <tr>
+                <td>#${r.numero_cliente ?? '—'}</td>
+                <td>${esc(r.nombre)}</td><td>${esc(r.email)}</td><td>${esc(r.celular)}</td>
+                <td>${esc(r.sucursal||'General')}</td><td>${r.partido_numero ? '#'+r.partido_numero : '—'}</td>
+                <td>${r.posicion ?? '—'}${r.ganador ? ' 🏆' : ''}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    document.getElementById('btnFiltrar').onclick = loadAdmin;
+    document.getElementById('btnCsv').onclick = function(){
+      if (!lastRows.length) return;
+      const headers = ['numero_cliente','nombre','email','celular','fecha_nacimiento','sucursal','partido_numero','modo','posicion','ganador','creado_en'];
+      const csv = [headers.join(',')].concat(lastRows.map(function(r){
+        return headers.map(function(h){ return '"' + String(r[h] ?? '').replace(/"/g,'""') + '"'; }).join(',');
+      })).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'guchini_registros.csv';
+      a.click();
+    };
+
+    loadAdmin();
+  }
+
+  loadStats();
+  loadSucursales();
+  document.getElementById('btnLogoutAdmin').onclick = async () => { await sb.auth.signOut(); location.href = '?'; };
+}
+
+window.addEventListener('unhandledrejection', (ev) => {
+  // Red de seguridad: si algo async se rompe sin ser atrapado en ningún lado,
+  // no dejamos al usuario mirando una pantalla vacía.
+  if (!app.innerHTML.trim() || app.querySelector('.loader')) {
+    renderErrorFallback(ev.reason);
+  }
+});
+
+sb.auth.onAuthStateChange(() => renderNav());
+router();
+</script>
+</body>
+</html>
